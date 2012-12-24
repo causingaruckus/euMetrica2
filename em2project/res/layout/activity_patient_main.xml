@@ -1,0 +1,45 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <Button
+        android:id="@+id/patient_account_settings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="90dp"
+        android:text="Account Settings"
+        android:textSize="30dp" />
+
+    <Button
+        android:id="@+id/patient_notifications"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="28dp"
+        android:text="Notifications"
+        android:textSize="30dp" />
+
+    <Button
+        android:id="@+id/patient_devices"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/patient_notifications"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp"
+        android:text="My Devices"
+        android:textSize="30dp" />
+
+    <Button
+        android:id="@+id/patient_contact_doctor"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/patient_devices"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="64dp"
+        android:text="Contact Doctor"
+        android:textSize="30dp" />
+
+</RelativeLayout>
