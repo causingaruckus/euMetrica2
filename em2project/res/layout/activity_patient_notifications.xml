@@ -9,10 +9,7 @@
         android:layout_height="wrap_content"
         android:layout_alignWithParentIfMissing="false"
         android:layout_centerHorizontal="true"
-        android:layout_centerInParent="true"
-        android:layout_centerVertical="true"
         android:entries="@array/patient_notifications" >
-
     </ListView>
 
 </RelativeLayout>
