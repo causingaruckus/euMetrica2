@@ -1,16 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
     <string name="app_name">euMetrica2</string>
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Settings</string>
-    <string name="title_activity_login">LoginActivity</string>
+    <string name="title_activity_login">euMetrica2</string>
     <string name="title_activity_patient_main">PatientMain</string>
     <string name="title_activity_patient_notifications">PatientNotifications</string>
+
     <string-array name="patient_notifications">
-        <item name="alert_arrythmia_detected">ALERT: Arrythmia Detected (!)</item>>
-    	<item name="warning_take_ekg">Take an EKG Recording</item>
-    	<item name="alert_modify_meds">ALERT: Modify Medication (!)</item>
-    	<item name="warning_sent_to_pharmacy">Prescription sent to pharmacy</item>
+        <item name="alert_arrythmia_detected">ALERT: Arrythmia Detected (!)</item>
+>                <item name="warning_take_ekg">Take an EKG Recording</item>
+        <item name="alert_modify_meds">ALERT: Modify Medication (!)</item>
+        <item name="warning_sent_to_pharmacy">Prescription sent to pharmacy</item>
     </string-array>
+
+    <string name="title_activity_patient_devices">PatientDevices</string>
+    <string name="title_activity_patient_ekgmain">PatientEKGMain</string>
 
 </resources>

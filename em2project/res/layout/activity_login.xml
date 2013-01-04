@@ -39,7 +39,7 @@
         android:layout_below="@+id/doctor_login"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="49dp"
-        android:text="About" 
+        android:text="About2" 
         android:textSize="20dp"/>
 
 </RelativeLayout>

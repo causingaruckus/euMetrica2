@@ -12,6 +12,7 @@ import android.widget.Button;
 public class PatientMain extends Activity {
 
 	Button notifyButton;
+	Button devicesButton;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -20,11 +21,19 @@ public class PatientMain extends Activity {
         getActionBar().setDisplayHomeAsUpEnabled(true);
         notifyButton = (Button) findViewById(R.id.patient_notifications);
         notifyButton.setOnClickListener(patientNotificationsHandler);
+        devicesButton = (Button) findViewById(R.id.patient_devices);
+        devicesButton.setOnClickListener(patientDevicesHandler);
 	}
 
 	View.OnClickListener patientNotificationsHandler = new View.OnClickListener() {
 		public void onClick(View v) {
 			Intent i = new Intent(PatientMain.this, PatientNotifications.class);
+			startActivity(i);
+		}
+	};
+	View.OnClickListener patientDevicesHandler = new View.OnClickListener() {
+		public void onClick(View v) {
+			Intent i = new Intent(PatientMain.this, PatientDevices.class);
 			startActivity(i);
 		}
 	};
