@@ -11,20 +11,12 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:layout_marginLeft="138dp"
-        android:layout_marginTop="172dp" >
+        android:layout_marginTop="100dp" >
 
         <TableRow
             android:id="@+id/tableRow1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
-
-            <ToggleButton
-                android:id="@+id/bluetoothSwitch"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="onSwitchFlipped"
-                android:textOn="Connected"
-                android:textOff="Disconnected"/>
 
         </TableRow>
 
@@ -32,6 +24,12 @@
             android:id="@+id/tableRow2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
+
+            <TextView
+                android:id="@+id/connectionStatusTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Connection Status" />
         </TableRow>
 
         <TableRow
@@ -40,12 +38,12 @@
             android:layout_height="wrap_content" >
 
             <TextView
-                android:id="@+id/ekg_value"
+                android:id="@+id/signal_value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="42dp"
-                android:text="EKGValue" />
-
+                android:layout_marginTop="20dp"
+                android:text="Your Heart Value" 
+                android:textAppearance="?android:attr/textAppearanceMedium"/>
         </TableRow>
 
         <TableRow
@@ -54,13 +52,44 @@
             android:layout_height="wrap_content" >
 
             <Button
-                android:id="@+id/record_ekg_button"
-                android:layout_marginTop="30dp"
+                android:id="@+id/connect_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Record" 
-                android:textSize="20dp"/>
+                android:layout_marginTop="30dp"
+                android:text="Connect"
+                android:textSize="20dp" />
+        </TableRow>
 
+        <TableRow
+            android:id="@+id/tableRow5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/tableRow6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <Button
+                android:id="@+id/start_recording_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="29dp"
+                android:layout_marginBottom="30dp"
+                android:text="START Recording" />
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/tableRow7"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <Button
+                android:id="@+id/stop_recording_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="STOP Recording" />
         </TableRow>
     </TableLayout>
 
@@ -70,8 +99,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignTop="@+id/tableLayout1"
-        android:layout_marginLeft="15dp"
+        android:layout_marginLeft="18dp"
         android:text="Device:"
-        android:textSize="30dp" />
+        android:textSize="30sp" />
 
 </RelativeLayout>

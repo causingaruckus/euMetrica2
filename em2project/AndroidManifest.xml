@@ -5,6 +5,7 @@
     android:versionName="1.0" >
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
+
     <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="15" />
@@ -49,6 +50,13 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.eumetrica.em2.PatientDevices" />
+        </activity>
+        <activity
+            android:name="com.eumetrica.em2.PairedDevices"
+            android:label="@string/title_activity_paired_devices" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.eumetrica.em2.PatientEKGMain" />
         </activity>
     </application>
 
