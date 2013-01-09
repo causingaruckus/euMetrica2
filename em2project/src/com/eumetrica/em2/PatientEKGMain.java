@@ -82,10 +82,10 @@ public class PatientEKGMain extends Activity {
 				}
 				break;
 			case TGDevice.MSG_POOR_SIGNAL:
-				Log.v("HelloEEG", "PoorSignal: " + msg.arg1);
+				Log.v("info", "PoorSignal: " + msg.arg1);
 				connectionStatus.setText("Poor signal");
 			case TGDevice.MSG_ATTENTION:
-				Log.v("HelloEEG", "Attention: " + msg.arg1);
+				Log.v("info", "Attention: " + msg.arg1);
 				connectionStatus.setText("Attention");
 				break;
 			case TGDevice.MSG_RAW_DATA:
