@@ -1,20 +1,32 @@
 package com.eumetrica.em2;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Set;
+
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.DialogInterface;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.app.NavUtils;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.neurosky.thinkgear.TGDevice;
 
 public class PatientEKGMain extends Activity {
@@ -22,10 +34,21 @@ public class PatientEKGMain extends Activity {
 	Button connectButton;
 	Button startRecordingButton;
 	Button stopRecordingButton;
+	Button syncButton;
 	TextView signalValue;
 	TextView connectionStatus;
 	TGDevice tgDevice;
 	BluetoothAdapter btAdapter;
+
+	public static final String ACCESS_KEY_ID = "";
+	public static final String SECRET_KEY = "";
+	
+	private AmazonS3Client s3Client = new AmazonS3Client( new BasicAWSCredentials( ACCESS_KEY_ID, SECRET_KEY ) );
+	
+	private String bucketName = "droidbucket";
+	
+	private String logFileName = "/euMetricaLog1.txt";
+	private int i;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -40,10 +63,11 @@ public class PatientEKGMain extends Activity {
 		startRecordingButton.setOnClickListener(startRecordingButtonHandler);
 		stopRecordingButton = (Button) findViewById(R.id.stop_recording_button);
 		stopRecordingButton.setOnClickListener(stopRecordButtonHandler);
+		syncButton = (Button) findViewById(R.id.syncButton);
+		syncButton.setOnClickListener(syncButtonHandler);
 		//Create the text-views on the screen
 		signalValue = (TextView) findViewById(R.id.signal_value);
 		connectionStatus = (TextView) findViewById(R.id.connectionStatusTextView);
-		
 	}
 
 	//Handle incoming messages from the device
@@ -90,7 +114,10 @@ public class PatientEKGMain extends Activity {
 				break;
 			case TGDevice.MSG_RAW_DATA:
 				int rawADCValue = msg.arg1;
-				Log.i ("info", "Got RAW DATA ****** ADC Value is " + rawADCValue);
+				Log.i ("info", "Got RAW DATA ****** " + i*0.002 + "ms, " + rawADCValue);
+				i++;
+				//Append cloud log with own timestamp value (seconds) and ADC value
+				appendLog(i*0.002 + "," + rawADCValue);
 				//ekgValue.setText(rawValue);
 				break;
 			case TGDevice.MSG_EEG_POWER:
@@ -101,6 +128,7 @@ public class PatientEKGMain extends Activity {
 			}
 		}
 	};
+	
 
 	//Handler for the ON button
 	View.OnClickListener connectButtonHandler = new View.OnClickListener() {
@@ -132,14 +160,17 @@ public class PatientEKGMain extends Activity {
 				Log.i ("info", "Got new TGDevice - connecting");
 				tgDevice.connect(true);
 				Log.i ("info", "Connected to new TGDevice");
-				
 			}
+			
+			Log.i("info", "Connected to the cloud");
 		}
 	};
 	
 	//Handler for the START button
 	View.OnClickListener startRecordingButtonHandler = new View.OnClickListener() {
 		public void onClick(View v) {
+			//Keep this here - otherwise late packets will come in at 0 ms twice
+			i = 0;
 			Log.i ("info", "Starting recording");
 			tgDevice.start();
 		}
@@ -152,29 +183,141 @@ public class PatientEKGMain extends Activity {
 			tgDevice.stop();
 		}
 	};
+	
+	//Handler for the Cloud Sync button
+	View.OnClickListener syncButtonHandler = new View.OnClickListener() {
+		@Override
+		public void onClick(View v) {
+			uploadLog();
+		}
+	};
 
-	//UNNECESSARY -- OPTIONS MENU STUFF -- DISABLED
-//	@Override
-//	public boolean onCreateOptionsMenu(Menu menu) {
-//		// Inflate the menu; this adds items to the action bar if it is present.
-//		getMenuInflater().inflate(R.menu.activity_patient_ekgmain, menu);
-//		return true;
-//	}
-//
-//	@Override
-//	public boolean onOptionsItemSelected(MenuItem item) {
-//		switch (item.getItemId()) {
-//		case android.R.id.home:
-//			// This ID represents the Home or Up button. In the case of this
-//			// activity, the Up button is shown. Use NavUtils to allow users
-//			// to navigate up one level in the application structure. For
-//			// more details, see the Navigation pattern on Android Design:
-//			//
-//			// http://developer.android.com/design/patterns/navigation.html#up-vs-back
-//			//
-//			NavUtils.navigateUpFromSameTask(this);
-//			return true;
+	public void appendLog(String text){       
+	   File logFile = new File(Environment.getExternalStorageDirectory() + logFileName);
+	   if (!logFile.exists())
+	   {
+	      try
+	      {
+	         logFile.createNewFile();
+	      } 
+	      catch (IOException e)
+	      {
+	         // TODO Auto-generated catch block
+	         e.printStackTrace();
+	      }
+	   }
+	   try
+	   {
+	      //BufferedWriter for performance, true to set append to file flag
+	      BufferedWriter buf = new BufferedWriter(new FileWriter(logFile, true)); 
+	      buf.append(text);
+	      buf.newLine();
+	      buf.close();
+	   }
+	   catch (IOException e)
+	   {
+	      // TODO Auto-generated catch block
+	      e.printStackTrace();
+	   }
+	}
+//	
+	public void uploadLog(){
+        // Put the image data into S3.
+		new LongOperation().execute("");
+	}
+	
+	//Create separate thread for the upload process
+	private class LongOperation extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... params) {
+            try {
+            	CreateBucketIfDoesntExist();
+            }
+            catch ( Exception exception ) {
+            	if (exception.getMessage() != null){
+            		Log.i("Upload Info", exception.getMessage() );
+            	}
+            } try {
+            	String fullPathName = Environment.getExternalStorageDirectory() + logFileName;
+            	Log.i("Upload Info", "Path name is " + fullPathName);
+            	PutObjectRequest por = new PutObjectRequest(bucketName, GetUniqueFilename(), new java.io.File(fullPathName) );  // Content type is determined by file extension.
+            	Log.i("Upload Info", "Unique object name is " + GetUniqueFilename());
+            	s3Client.putObject( por );
+            } catch (Exception exception){
+            	if (exception.getMessage() != null){
+            		Log.i("Upload Info", exception.getMessage() );
+            	}
+            }    		
+    		File logFile = new File(Environment.getExternalStorageDirectory() + logFileName);
+    		String uploadFilename = GetUniqueFilename();
+    		s3Client.putObject(bucketName, uploadFilename, logFile);     	
+              return "Executed";
+        }      
+
+        @Override
+        protected void onPostExecute(String result) {
+              Log.i("Upload Info", "Thread Executed"); // txt.setText(result);
+              //might want to change "executed" for the returned string passed into onPostExecute() but that is up to you
+        }
+
+        @Override
+        protected void onPreExecute() {
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... values) {
+        }
+  }   
+	
+    // Display an Alert message for an error or failure.
+    protected void displayAlert( String title, String message ) {
+        AlertDialog.Builder confirm = new AlertDialog.Builder( this );
+        confirm.setTitle( title);
+        confirm.setMessage( message );
+        confirm.setNegativeButton( "OK", new DialogInterface.OnClickListener() {
+            public void onClick( DialogInterface dialog, int which ) {
+            	PatientEKGMain.this.finish();
+            }
+        } );
+        confirm.show().show();                
+    }
+    
+	public String GetUniqueFilename(){
+		String fname = "log_" + GetDatetimeString();// make file name
+		int appendInt = 1;
+		
+//		while(true) {
+//			try // Throws exception if object doesn't exist
+//			{
+//				S3Object object = s3Client.getObject(new GetObjectRequest(bucketName, fname));
+//				if (object == null)
+//				{
+//					break;
+//				}
+//			} catch (AmazonS3Exception ex) {
+//				break;
+//			}
+//			fname = String.format(fname+"-%d", appendInt);
+//			appendInt++;
 //		}
-//		return super.onOptionsItemSelected(item);
-//	}
+		fname = String.format(fname+"-%d", appendInt);
+		appendInt++;
+		return fname + ".txt";
+	}
+//	
+	public String GetDatetimeString(){
+		DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
+        Date date = new Date();
+        return dateFormat.format(date);
+	}
+//	
+	public void CreateBucketIfDoesntExist(){
+		if (!s3Client.doesBucketExist(bucketName));
+		{
+			s3Client.createBucket(bucketName);
+        	Log.i("Upload Info", "Created bucket: " + bucketName);
+		}
+	}
+
 }
